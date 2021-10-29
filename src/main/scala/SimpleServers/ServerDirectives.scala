@@ -71,8 +71,6 @@ val allpath=path("index") { completeOkRoute  }
 val dryRoute =  (path("about") | path("aboutUs")) { complete(StatusCodes.OK)  }
 
 
-
-
 val chain =
           header~
           getpath~

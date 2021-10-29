@@ -1,5 +1,0 @@
-package TokenService
-
-object SimpleTokenServer {
-
-}

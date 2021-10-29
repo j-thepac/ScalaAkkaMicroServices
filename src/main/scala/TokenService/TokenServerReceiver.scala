@@ -3,12 +3,15 @@ package TokenService
 
 
 import java.util.concurrent.TimeUnit
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.stream.ActorMaterializer
 import akka.http.scaladsl.server.Directives._
-import pdi.jwt.{Jwt,JwtAlgorithm, JwtClaim, JwtSprayJson}
+import akka.http.scaladsl.server.StandardRoute
+import pdi.jwt.{Jwt, JwtAlgorithm, JwtClaim, JwtSprayJson}
+
 import scala.concurrent.duration._
 import org.json._
 
@@ -50,21 +53,24 @@ object TokenServerReceiver extends App{
   def isTokenValid(token: String): Boolean = Jwt.isValid(token, secretKey, Seq(algorithm))
 
 //  curl -X POST localhost:8080/auth -d "{\"name\":\"deepak\" , \"password\":\"pass\"}"
-  val loginRoute =
-  {
-    (path("auth") & post & pathEndOrSingleSlash & extractRequest & extractLog) { (request, log) =>
-    val entity = request.entity
-    val strictEntityFuture = entity.toStrict(2 seconds)
-    val jsonFuture = strictEntityFuture.map(_.data.utf8String)
-    onComplete(jsonFuture) {
-      case Success(jsondata) =>
-        val j:JSONObject=new JSONObject(jsondata)
-        log.info(createToken(j.get("name").toString,1))
-        complete(StatusCodes.OK)
-      case Failure(ex) =>
-        failWith(ex)
-    }
-  }}
+  val loginRoute = {(path("auth") & post & pathEndOrSingleSlash & extractRequest & extractLog) {
+          (request, log) =>
+                        val entity = request.entity
+                        val strictEntityFuture = entity.toStrict(2 seconds)
+                        val jsonFuture = strictEntityFuture.map(_.data.utf8String)
+
+                        onComplete(jsonFuture) {
+                          case Success(jsondata) => {
+                                                        val j: JSONObject = new JSONObject(jsondata)
+                                                        val usn= j.get("name").toString
+                                                        val pass= j.get("password").toString
+                                                        if (checkPassword(usn, pass)) {
+                                                          log.info(createToken(j.get("name").toString, 1))
+                                                          complete(StatusCodes.OK)}
+                                                          complete(HttpResponse(status = StatusCodes.Unauthorized,entity = "Usn, password did not match")) }
+                          case Failure(ex) =>  failWith(ex)
+                        }
+                      }}
 //
 //  a="<token here>"
 //  curl -X GET localhost:8080/secureEndpoint -H "Authorization:$a"
@@ -73,20 +79,17 @@ object TokenServerReceiver extends App{
       optionalHeaderValueByName("Authorization") {
                 case Some(token) =>
                           if (isTokenValid(token)) {
-                            if (isTokenExpired(token)) {
+                            if (isTokenExpired(token))
                               complete(HttpResponse(status = StatusCodes.Unauthorized, entity = "Token expired."))
-                            } else {
+                             else
                               complete("SUccess!")
-                            }
                           }
-                          else {
+                          else
                             complete(HttpResponse(status = StatusCodes.Unauthorized, entity = "Token is invalid, or has been tampered with."))
-                          }
                  case _ => complete(HttpResponse(status = StatusCodes.Unauthorized, entity = "No token provided!"))
       }
     }
 
   val route = loginRoute ~ authenticatedRoute
-
   Http().bindAndHandle(route, "localhost", 8080)
 }

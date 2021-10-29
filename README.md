@@ -1,3 +1,5 @@
+
+Default scala : 2.12
 This project contains based code for creating microservices using 
 1. Scala - Akka
 2. Bazel Build tool

@@ -29,24 +29,27 @@ object ServerLowLevelAsync extends  App {
 
   // method, URI, HTTP headers, content and the protocol (HTTP1.1/HTTP2.0) -- decompose
   val asyncRequestHandler: HttpRequest => Future[HttpResponse] = {
-    case HttpRequest(HttpMethods.GET, Uri.Path("/home"), _, _, _) => Future(HttpResponse(entity = response))
-    case HttpRequest(HttpMethods.GET, Uri.Path("/search"), _, _, _) => Future(HttpResponse(StatusCodes.Found,
-      headers = List(Location("http://google.com"))))
-    case HttpRequest(HttpMethods.POST, Uri.Path("/json"), _, entity, _) =>
-      val strictEntityFuture = entity.toStrict(2 seconds) //convert to future with wait of 2 sec
-      val jsonFuture = strictEntityFuture.map(_.data.utf8String) //Byte stream to String
-      onComplete(jsonFuture){
-        case Success(jsondata) =>
-          val j:JSONObject=new JSONObject(jsondata)
-          println(j.get("name").toString)
-          complete(StatusCodes.OK)
-        case Failure(ex) =>   complete(StatusCodes.InternalServerError)
-      }
-      Future(HttpResponse(StatusCodes.Found)  )
 
-    case request: HttpRequest => {request.discardEntityBytes()
-      Future(HttpResponse(StatusCodes.NotFound, entity = response2)) //StatusCodes.OK,
-    }
+    case HttpRequest(HttpMethods.GET, Uri.Path("/home"), _, _, _) => Future(HttpResponse(entity = response))
+
+    case HttpRequest(HttpMethods.GET, Uri.Path("/search"), _, _, _) =>  Future(HttpResponse(StatusCodes.Found,headers = List(Location("http://google.com"))))
+
+    case HttpRequest(HttpMethods.POST, Uri.Path("/json"), _, entity, _) =>
+                                                                          val strictEntityFuture = entity.toStrict(2 seconds) //convert to future with wait of 2 sec
+                                                                          val jsonFuture = strictEntityFuture.map(_.data.utf8String) //Byte stream to String
+                                                                          onComplete(jsonFuture){
+                                                                            case Success(jsondata) =>
+                                                                              val j:JSONObject=new JSONObject(jsondata)
+                                                                              println(j.get("name").toString)
+                                                                              complete(StatusCodes.OK)
+                                                                            case Failure(ex) =>   complete(StatusCodes.InternalServerError)
+                                                                          }
+                                                                           Future(HttpResponse(StatusCodes.Found)  )
+
+    case request: HttpRequest => {
+                                  request.discardEntityBytes()
+                                  Future(HttpResponse(StatusCodes.NotFound, entity = response2)) //StatusCodes.OK,
+                                }
   }
   Http().bindAndHandleAsync(asyncRequestHandler, "localhost", 8081)
 }

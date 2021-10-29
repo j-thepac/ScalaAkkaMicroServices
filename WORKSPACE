@@ -52,6 +52,9 @@ maven_install(
         "com.typesafe.akka:akka-http-core_2.12:10.2.6",
         "com.typesafe.akka:akka-actor_2.12:2.6.17",
         "org.json:json:20210307",
+        "com.pauldijou:jwt-core_2.12:5.0.0",
+        "com.pauldijou:jwt-spray-json_2.12:5.0.0",
+        "com.pauldijou:jwt-json-common_2.12:5.0.0"
     ],
     repositories = [
         "https://jcenter.bintray.com",

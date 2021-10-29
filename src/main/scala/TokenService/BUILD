@@ -3,31 +3,9 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library", "scala_binary", 
 
 scala_binary(
     name="directive",
-    main_class="SimpleServers.ServerDirectives",
+    main_class="TokenService.TokenServerReceiver",
     srcs=[
-        "ServerDirectives.scala",
-        ],
-    deps = [
-        "service",
-        ],
-)
-
-scala_binary(
-    name="lowlevel",
-    main_class="SimpleServers.ServerLowLevelAsync",
-    srcs=[
-        "ServerLowLevelAsync.scala",
-        ],
-    deps = [
-        "service",
-        ],
-)
-
-scala_binary(
-    name="serverstream",
-    main_class="SimpleServers.ServerStream",
-    srcs=[
-        "ServerStream.scala",
+        "TokenServerReceiver.scala",
         ],
     deps = [
         "service",
@@ -45,8 +23,9 @@ java_library(
         "@maven//:org_json_json_20210307",
         "@maven//:com_typesafe_akka_akka_actor_2_12",
         "@maven//:com_typesafe_akka_akka_http_2_12",
-
-
+        "@maven//:com_pauldijou_jwt_core_2_12",
+        "@maven//:com_pauldijou_jwt_spray_json_2_12",
+        "@maven//:com_pauldijou_jwt_json_common_2_12",
         ],
 )
 

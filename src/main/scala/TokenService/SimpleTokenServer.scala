@@ -1,0 +1,5 @@
+package TokenService
+
+object SimpleTokenServer {
+
+}

@@ -26,8 +26,7 @@ object TokenServerReceiver extends App{
   import system.dispatcher
 
   val superSecretPasswordDb = Map(
-    "admin" -> "admin",
-    "daniel" -> "Rockthejvm1!"
+    "admin" -> "admin"
   )
 
   val algorithm = JwtAlgorithm.HS256
@@ -40,7 +39,7 @@ object TokenServerReceiver extends App{
     val claims = JwtClaim(
       expiration = Some(System.currentTimeMillis() / 1000 + TimeUnit.DAYS.toSeconds(expirationPeriodInDays)),
       issuedAt = Some(System.currentTimeMillis() / 1000),
-      issuer = Some("rockthejvm.com")
+      issuer = Some("org")
     )
     Jwt.encode(claims, secretKey, algorithm) // JWT string
   }

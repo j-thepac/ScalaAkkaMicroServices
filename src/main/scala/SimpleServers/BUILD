@@ -33,7 +33,16 @@ scala_binary(
         "service",
         ],
 )
-
+scala_binary(
+    name="verysimpleserver",
+    main_class="SimpleServers.VerySimpleServer",
+    srcs=[
+        "VerySimpleServer.scala",
+        ],
+    deps = [
+        "service",
+        ],
+)
 
 
 

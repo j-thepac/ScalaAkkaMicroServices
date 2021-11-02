@@ -11,6 +11,16 @@ scala_binary(
         "service",
         ],
 )
+scala_binary(
+    name="simpleclient",
+    main_class="Client.VerySimpleClient",
+    srcs=[
+        "VerySimpleClient.scala",
+        ],
+    deps = [
+        "service",
+        ],
+)
 
 
 
